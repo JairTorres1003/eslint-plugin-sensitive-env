@@ -1,0 +1,1 @@
+# eslint-plugin-sensitive-env
