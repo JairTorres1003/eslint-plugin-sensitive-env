@@ -17,7 +17,6 @@
   "private": true,
   "license": "MIT",
   "author": "Jair Torres",
-  "publisher": "JairTorres1003",
   "version": "1.0.0",
   "repository": {
     "type": "git",
@@ -54,8 +53,8 @@
     "typescript": "5.5.4"
   },
   "peerDependencies": {
-    "eslint": "^8.0.0",
-    "@typescript-eslint/utils": "8.10.0"
+    "@typescript-eslint/utils": "8.10.0",
+    "eslint": "^8.0.0"
   },
   "husky": {
     "hooks": {

@@ -19,9 +19,7 @@ export interface NoHardcodedValuesRuleOptions {
   identifiers?: Array<Uppercase<string>>
 }
 
-export type NoHardcodedValuesRuleMessageIds =
-  | 'noHardcodedValuesRule'
-  | 'environmentFileDoesNotExist'
+export type NoHardcodedValuesRuleMessageIds = 'noHardcodedValues' | 'environmentFileDoesNotExist'
 
 export type NoHardcodedValuesRule = TSESLint.RuleModule<
   NoHardcodedValuesRuleMessageIds,
@@ -35,7 +33,7 @@ const noHardcodedValuesRule: NoHardcodedValuesRule = {
       description: 'Do not hardcode sensitive values. Use environment variables instead.',
     },
     messages: {
-      noHardcodedValuesRule: 'Do not hardcode sensitive values. Use environment variables instead.',
+      noHardcodedValues: 'Do not hardcode sensitive values. Use environment variables instead.',
       environmentFileDoesNotExist: 'The environment file {{envFile}} does not exist.',
     },
     schema: [
@@ -82,7 +80,7 @@ const noHardcodedValuesRule: NoHardcodedValuesRule = {
         if (typeof node.value !== 'string') return
 
         if (sensitiveValues.includes(node.value)) {
-          report({ node, messageId: 'noHardcodedValuesRule' })
+          report({ node, messageId: 'noHardcodedValues' })
         }
       },
     }

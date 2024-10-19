@@ -1,7 +1,9 @@
 import noHardcodedValuesRule from './rules/no-hardcoded-values'
 
-export default {
+const config = {
   rules: {
     'no-hardcoded-values': noHardcodedValuesRule,
   },
 }
+
+export default config
