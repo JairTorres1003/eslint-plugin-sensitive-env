@@ -64,5 +64,5 @@ module.exports = {
       },
     ],
   },
-  ignorePatterns: ['build', 'dist', '**/*.d.ts'],
+  ignorePatterns: ['build', 'dist', '**/*.d.ts', 'src/test/**/*.spec.ts'],
 }
