@@ -65,17 +65,27 @@ export const getEnvironmentFile = (cwd: string, envFile?: string): string | unde
  *
  * @param config - The configuration object to filter.
  * @param identifiers - The identifiers to filter by.
+ * @param ignore - The identifiers to ignore.
  * @returns An array of values that correspond to the identifiers provided.
  */
 export const filterValuesByIdentifiers = (
   config: Record<string, string>,
-  identifiers: Array<Uppercase<string>>
+  identifiers: Array<Uppercase<string>>,
+  ignore: Array<Uppercase<string>>
 ): string[] => {
-  const sensitiveValues = Object.entries(config).filter(([key]) => {
-    const keyUpper = key.toUpperCase() as Uppercase<string>
+  let sensitiveValues = Object.entries(config)
 
-    return identifiers.some((identifier) => keyUpper.includes(identifier))
-  })
+  if (identifiers.length > 0 || ignore.length > 0) {
+    sensitiveValues = sensitiveValues.filter(([key]) => {
+      const keyUpper = key.toUpperCase() as Uppercase<string>
+
+      if (ignore.length > 0) {
+        return !ignore.some((identifier) => keyUpper.includes(identifier.toUpperCase()))
+      }
+
+      return identifiers.some((identifier) => keyUpper.includes(identifier.toUpperCase()))
+    })
+  }
 
   return sensitiveValues.map(([, value]) => {
     try {

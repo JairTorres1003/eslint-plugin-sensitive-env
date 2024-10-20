@@ -17,6 +17,11 @@ export interface NoHardcodedValuesRuleOptions {
    * @default ['API_KEY', 'URL', 'TOKEN', 'PASSWORD', 'SECRET', 'UUID', 'KEY', 'DOMAIN']
    */
   identifiers?: Array<Uppercase<string>>
+  /**
+   * The identifiers to ignore.
+   * @default []
+   */
+  ignore?: Array<Uppercase<string>>
 }
 
 export type NoHardcodedValuesRuleMessageIds = 'noHardcodedValues' | 'environmentFileDoesNotExist'
@@ -38,11 +43,14 @@ const noHardcodedValuesRule: NoHardcodedValuesRule = {
     },
     schema: [
       {
+        $schema: 'http://json-schema.org/draft-07/schema#',
+        title: 'No Hardcoded Values Rule Options',
         type: 'object',
         properties: {
           envFile: {
             type: 'string',
             description: 'The path to the environment file.',
+            default: undefined,
           },
           identifiers: {
             type: 'array',
@@ -53,14 +61,24 @@ const noHardcodedValuesRule: NoHardcodedValuesRule = {
             description: 'The identifiers to check for hardcoded values in the environment file.',
             default: IDENTIFIERS,
           },
+          ignore: {
+            type: 'array',
+            items: {
+              type: 'string',
+              pattern: '^[A-Z0-9_]+$',
+            },
+            description: 'The identifiers to ignore. If defined, no identifiers will be used.',
+            default: [],
+          },
         },
       },
     ],
   },
-  defaultOptions: [{ identifiers: IDENTIFIERS }],
+  defaultOptions: [{ identifiers: IDENTIFIERS, ignore: [] }],
   create({ options = [], report, cwd }) {
     const envFile = options[0]?.envFile
     const identifiers = options[0]?.identifiers ?? IDENTIFIERS
+    const ignore = options[0]?.ignore ?? []
     const environmentFile = getEnvironmentFile(cwd, envFile)
 
     if (environmentFile === undefined || !fs.existsSync(environmentFile)) {
@@ -73,7 +91,7 @@ const noHardcodedValuesRule: NoHardcodedValuesRule = {
     }
 
     const config = dotenv.parse(fs.readFileSync(environmentFile))
-    const sensitiveValues = filterValuesByIdentifiers(config, identifiers)
+    const sensitiveValues = filterValuesByIdentifiers(config, identifiers, ignore)
 
     return {
       Literal(node) {
