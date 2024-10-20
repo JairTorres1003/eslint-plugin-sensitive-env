@@ -15,5 +15,5 @@
       "@/*": ["./src/*"]
     }
   },
-  "exclude": ["build", "jest.config.ts", "**/*.spec.ts"]
+  "exclude": ["build", "jest.config.ts", "src/test"]
 }

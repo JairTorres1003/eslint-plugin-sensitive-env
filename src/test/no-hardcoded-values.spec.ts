@@ -12,7 +12,7 @@ ruleTester.run('no-hardcoded-values', rule, {
         const secret = process.env.PUBLIC_CLIENT_SECRET;
         const myUrl = 'https://my-url.example.com';
       `,
-      options: [{ identifiers: ['API_KEY', 'SECRET'], envFile: '.env.local.example' }],
+      options: [{ identifiers: ['API_KEY', 'SECRET'], envFile: '.env.example' }],
     },
     {
       code: 'const urlApi = process.env.PUBLIC_API_URL + "status";',
@@ -21,7 +21,7 @@ ruleTester.run('no-hardcoded-values', rule, {
       code: 'const password = process.env.PUBLIC_CLIENT_PASSWORD;',
     },
     {
-      code: 'const someValue = "non-sensitive-value";',
+      code: 'const someValue = "example_uuid";',
       options: [{ envFile: '.env.example', identifiers: ['CLIENT'] }],
     },
   ],
