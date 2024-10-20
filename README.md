@@ -1,4 +1,4 @@
-# eslint-plugin-sensitive-env
+# eslint-plugin-sensitive-env [![npm](https://img.shields.io/npm/v/eslint-plugin-sensitive-env)](https://www.npmjs.com/package/eslint-plugin-sensitive-env)
 
 An ESLint plugin designed to prevent hardcoded sensitive values in your code. This plugin ensures that all sensitive values, such as API keys, tokens, passwords, and other environment-specific data, are stored in environment variables instead of being hardcoded into the source code.
 
