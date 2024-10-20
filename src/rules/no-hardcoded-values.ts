@@ -54,7 +54,6 @@ const noHardcodedValuesRule: NoHardcodedValuesRule = {
             default: IDENTIFIERS,
           },
         },
-        additionalProperties: false,
       },
     ],
   },
@@ -80,7 +79,8 @@ const noHardcodedValuesRule: NoHardcodedValuesRule = {
       Literal(node) {
         if (typeof node.value !== 'string') return
 
-        if (sensitiveValues.includes(node.value)) {
+        const isSensitiveValue = sensitiveValues.some((value) => node.value.includes(value))
+        if (isSensitiveValue) {
           report({ node, messageId: 'noHardcodedValues' })
         }
       },
