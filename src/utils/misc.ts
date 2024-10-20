@@ -1,7 +1,7 @@
 import * as fs from 'fs'
 import * as path from 'path'
 
-import { ENV_FILES } from '@/constants/misc'
+import { ENV_FILES, NO_SENSITIVE_VALUES } from '@/constants/misc'
 
 /**
  * Checks if a value is empty.
@@ -58,41 +58,62 @@ export const getEnvironmentFile = (cwd: string, envFile?: string): string | unde
 }
 
 /**
- * Filters values from a configuration object by their identifiers.
+ * Checks if a value is a sensitive value.
  *
- * This function filters values from a configuration object by their identifiers.
- * It returns an array of values that correspond to the identifiers provided.
+ * This function checks if a value is a sensitive value by comparing it to a list
+ * of predefined values that are not considered sensitive. It also checks if the
+ * value is a number or a date.
+ *
+ * @param value - The value to check.
+ * @param noSensitiveValues - A list of values that are not considered sensitive.
+ * @returns A boolean indicating whether the value is a sensitive value.
+ */
+export const isSensitiveValue = (value: string, noSensitiveValues: string[] = []): boolean => {
+  try {
+    if (value.trim().length <= 4) return false
+
+    if ([...NO_SENSITIVE_VALUES, ...noSensitiveValues].includes(value.toLowerCase())) return false
+
+    if (!isNaN(Number(value))) return false
+
+    if (new Date(value).toString() !== 'Invalid Date') return false
+
+    return true
+  } catch (error) {
+    return false
+  }
+}
+
+/**
+ * Filters sensitive values from a configuration object.
+ *
+ * This function filters sensitive values from a configuration object and returns
+ * an array of the filtered values. It also allows for a list of identifiers to be
+ * ignored and a list of values that are not considered sensitive.
  *
  * @param config - The configuration object to filter.
- * @param identifiers - The identifiers to filter by.
- * @param ignore - The identifiers to ignore.
- * @returns An array of values that correspond to the identifiers provided.
+ * @param ignore - A list of identifiers to ignore.
+ * @param noSensitiveValues - A list of values that are not considered sensitive.
+ * @returns An array of sensitive values.
  */
-export const filterValuesByIdentifiers = (
+export const filterValues = (
   config: Record<string, string>,
-  identifiers: Array<Uppercase<string>>,
-  ignore: Array<Uppercase<string>>
+  ignore: Array<Uppercase<string>>,
+  noSensitiveValues: string[] = []
 ): string[] => {
-  let sensitiveValues = Object.entries(config)
+  const sensitiveValues: string[] = []
 
-  if (identifiers.length > 0 || ignore.length > 0) {
-    sensitiveValues = sensitiveValues.filter(([key]) => {
+  Object.entries(config).forEach(([key, value]) => {
+    if (!isSensitiveValue(value, noSensitiveValues) || value.trim() === '') return
+
+    if (ignore.length > 0) {
       const keyUpper = key.toUpperCase() as Uppercase<string>
 
-      if (ignore.length > 0) {
-        return !ignore.some((identifier) => keyUpper.includes(identifier.toUpperCase()))
-      }
-
-      return identifiers.some((identifier) => keyUpper.includes(identifier.toUpperCase()))
-    })
-  }
-
-  return sensitiveValues.map(([, value]) => {
-    try {
-      const isUrl = new URL(value)
-      return isUrl.hostname
-    } catch (error) {
-      return value
+      if (ignore.some((identifier) => keyUpper.includes(identifier.toUpperCase()))) return
     }
+
+    sensitiveValues.push(value)
   })
+
+  return sensitiveValues
 }

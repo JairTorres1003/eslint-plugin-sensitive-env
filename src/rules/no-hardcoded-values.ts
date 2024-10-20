@@ -3,8 +3,7 @@ import * as fs from 'fs'
 import { type TSESLint } from '@typescript-eslint/utils'
 import * as dotenv from 'dotenv'
 
-import { IDENTIFIERS } from '@/constants/misc'
-import { filterValuesByIdentifiers, getEnvironmentFile } from '@/utils/misc'
+import { filterValues, getEnvironmentFile } from '@/utils/misc'
 
 export interface NoHardcodedValuesRuleOptions {
   /**
@@ -13,15 +12,15 @@ export interface NoHardcodedValuesRuleOptions {
    */
   envFile?: string
   /**
-   * The identifiers to check for hardcoded values in the environment file.
-   * @default ['API', 'URL', 'TOKEN', 'PASSWORD', 'SECRET', 'UUID', 'KEY', 'DOMAIN']
-   */
-  identifiers?: Array<Uppercase<string>>
-  /**
    * The identifiers to ignore.
    * @default []
    */
   ignore?: Array<Uppercase<string>>
+  /**
+   * The values that are not considered sensitive.
+   * @default []
+   */
+  noSensitiveValues?: string[]
 }
 
 export type NoHardcodedValuesRuleMessageIds = 'noHardcodedValues' | 'environmentFileDoesNotExist'
@@ -52,15 +51,6 @@ const noHardcodedValuesRule: NoHardcodedValuesRule = {
             description: 'The path to the environment file.',
             default: undefined,
           },
-          identifiers: {
-            type: 'array',
-            items: {
-              type: 'string',
-              pattern: '^[A-Z0-9_]+$',
-            },
-            description: 'The identifiers to check for hardcoded values in the environment file.',
-            default: IDENTIFIERS,
-          },
           ignore: {
             type: 'array',
             items: {
@@ -70,15 +60,25 @@ const noHardcodedValuesRule: NoHardcodedValuesRule = {
             description: 'The identifiers to ignore. If defined, no identifiers will be used.',
             default: [],
           },
+          noSensitiveValues: {
+            type: 'array',
+            items: {
+              type: 'string',
+            },
+            description: 'The values that are not considered sensitive.',
+            default: [],
+          },
         },
       },
     ],
   },
-  defaultOptions: [{ identifiers: IDENTIFIERS, ignore: [] }],
+  defaultOptions: [{ ignore: [], noSensitiveValues: [] }],
   create({ options = [], report, cwd }) {
     const envFile = options[0]?.envFile
-    const identifiers = options[0]?.identifiers ?? IDENTIFIERS
     const ignore = options[0]?.ignore ?? []
+    const noSensitiveValues = (options[0]?.noSensitiveValues ?? []).map((value) =>
+      value.toLowerCase()
+    )
     const environmentFile = getEnvironmentFile(cwd, envFile)
 
     if (environmentFile === undefined || !fs.existsSync(environmentFile)) {
@@ -91,7 +91,9 @@ const noHardcodedValuesRule: NoHardcodedValuesRule = {
     }
 
     const config = dotenv.parse(fs.readFileSync(environmentFile))
-    const sensitiveValues = filterValuesByIdentifiers(config, identifiers, ignore)
+    const sensitiveValues = filterValues(config, ignore, noSensitiveValues)
+
+    if (sensitiveValues.length === 0) return {}
 
     return {
       Literal(node) {
