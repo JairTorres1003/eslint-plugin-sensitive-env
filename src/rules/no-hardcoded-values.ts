@@ -60,7 +60,8 @@ const noHardcodedValuesRule: NoHardcodedValuesRule = {
   },
   defaultOptions: [{ identifiers: IDENTIFIERS }],
   create({ options = [], report, cwd }) {
-    const [{ envFile, identifiers = IDENTIFIERS }] = options
+    const envFile = options[0]?.envFile
+    const identifiers = options[0]?.identifiers ?? IDENTIFIERS
     const environmentFile = getEnvironmentFile(cwd, envFile)
 
     if (environmentFile === undefined || !fs.existsSync(environmentFile)) {
