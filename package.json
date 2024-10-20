@@ -14,7 +14,6 @@
   "files": [
     "build"
   ],
-  "private": true,
   "license": "MIT",
   "author": "Jair Torres",
   "version": "1.0.0",
