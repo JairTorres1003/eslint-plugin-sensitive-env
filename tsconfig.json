@@ -1,8 +1,7 @@
 {
   "compilerOptions": {
-    "module": "ESNext",
-    "target": "ESNext",
-    "moduleResolution": "bundler",
+    "module": "commonjs",
+    "target": "ES6",
     "lib": ["ESNext", "dom"],
     "sourceMap": true,
     "declaration": true,
@@ -16,5 +15,5 @@
       "@/*": ["./src/*"]
     }
   },
-  "exclude": ["build", "jest.config.ts"]
+  "exclude": ["build", "jest.config.ts", "**/*.spec.ts"]
 }
