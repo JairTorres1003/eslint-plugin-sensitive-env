@@ -74,9 +74,7 @@ export const isSensitiveValue = (value: string, noSensitiveValues: string[] = []
 
     if ([...NO_SENSITIVE_VALUES, ...noSensitiveValues].includes(value.toLowerCase())) return false
 
-    if (!isNaN(Number(value))) return false
-
-    if (new Date(value).toString() !== 'Invalid Date') return false
+    if (isNaN(Number(value)) && new Date(value).toString() !== 'Invalid Date') return false
 
     return true
   } catch (error) {

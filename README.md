@@ -1,13 +1,14 @@
 # eslint-plugin-sensitive-env [![npm](https://img.shields.io/npm/v/eslint-plugin-sensitive-env)](https://www.npmjs.com/package/eslint-plugin-sensitive-env)
 
-An ESLint plugin designed to prevent hardcoded sensitive values in your code. This plugin ensures that all sensitive values, such as API keys, tokens, passwords, and other environment-specific data, are stored in environment variables instead of being hardcoded into the source code.
+An ESLint plugin designed to prevent hardcoded sensitive values in your code. This plugin ensures that sensitive values, such as API keys, tokens, passwords, and other environment-specific data, are stored in environment variables instead of being hardcoded into the source code.
 
 ## Features
 
-- Detects hardcoded sensitive values based on predefined or custom environment variable identifiers.
+- Detects hardcoded sensitive values based on `.env` files.
 - Supports `.env` files to define environment variables.
-- Allows configuration of environment files and sensitive value identifiers.
-- Ignores specific identifiers when configured.
+- Allows configuration of environment files and control over which keys and values are checked.
+- Ignores specific keys or values when configured.
+- Predefined non-sensitive values (e.g., 'false', 'null', 'true') are automatically excluded from checks.
 
 ## Installation
 
@@ -54,17 +55,31 @@ The `no-hardcoded-values` rule provides flexible configuration options:
     ]
     ```
 
-- `identifiers` (optional): An array of uppercase strings representing parts of environment variable names that are considered sensitive.
+- `ignore` (optional): An array of uppercase strings representing the environment variable names (keys) to ignore.
 
-  - Defaults to:
+  - The rule will not flag hardcoded values of ignored keys.
+
+- `noSensitiveValues` (optional): An array of strings representing specific values to ignore as non-sensitive.
+
+  - The rule will not flag these values even if they match a key from the environment file.
+  - By default, the following values are ignored:
     ```json
-    ["API", "URL", "TOKEN", "PASSWORD", "SECRET", "UUID", "KEY", "DOMAIN"]
+    [
+      "false",
+      "null",
+      "true",
+      "undefined",
+      "unknown",
+      "nan",
+      "infinity",
+      "-infinity",
+      "1234567890",
+      "9876543210"
+    ]
     ```
-  - If set to an empty array (`[]`), all environment variables will be treated as sensitive.
-
-- `ignore` (optional): An array of identifiers to ignore during the check.
-
-  - If defined, the identifiers option will not be used.
+  - Additionally, dates in string format (e.g., `2024-10-20` or `10/20/2024`) are not considered sensitive. Numerical representations of dates (e.g., `1729464561272`) are allowed.
+  - URLs defined in environment files are checked based on the hostname to determine if they contain sensitive information.
+  - Values with 4 or fewer characters are not considered sensitive.
 
 ### Example Configuration
 
@@ -75,7 +90,8 @@ The `no-hardcoded-values` rule provides flexible configuration options:
       "error",
       {
         "envFile": ".env",
-        "identifiers": ["TOKEN", "SECRET"]
+        "ignore": ["PUBLIC_LOCALHOST"],
+        "noSensitiveValues": ["myPublicValue"]
       }
     ]
   }
@@ -84,12 +100,13 @@ The `no-hardcoded-values` rule provides flexible configuration options:
 
 In this configuration:
 
-- .env is used as the environment file.
-- The rule will flag any hardcoded value containing TOKEN or SECRET.
+- `.env` is used as the environment file.
+- The rule will ignore any hard-coded value for the key that contains `PUBLIC_LOCALHOST`.
+- The value `myPublicValue` will not be flagged as sensitive, regardless of where it appears.
 
 ## Rule Details
 
-The `no-hardcoded-values` rule checks for sensitive values that should be stored in environment variables instead of being hardcoded. It works by reading an environment file (e.g., `.env`) and matching values defined by the specified `identifiers`.
+The `no-hardcoded-values` rule checks for sensitive values that should be stored in environment variables instead of being hardcoded. It works by reading an environment file (e.g., `.env`) and matching values defined by the specified options.
 
 If the environment file does not exist or cannot be found, the rule will produce a warning with the message:
 
@@ -103,24 +120,11 @@ If a hardcoded sensitive value is found, the following error message will be rep
 Do not hardcode sensitive values. Use environment variables instead.
 ```
 
-### Identifiers
+### Ignoring Specific Keys and Values
 
-The `identifiers` array is used to specify which parts of an environment variable name should be considered sensitive. For example, if your `.env` file contains the following variables:
+You can customize the behavior of the plugin by defining which keys and values to ignore.
 
-```bash
-PUBLIC_API_KEY=yourApiKey
-PUBLIC_SECRET_TOKEN=yourSecretToken
-PUBLIC_URL_API=http://yourDomain/
-PUBLIC_PASSWORD=yourPassword
-```
-
-And you configure the rule to use `["API_KEY", "TOKEN", "URL"]` as identifiers, the rule will flag any hardcoded use of `yourApiKey`, `yourSecretToken` or `yourDomain`.
-
-## Customization
-
-You can customize the behavior of the plugin by defining your own set of identifiers or ignoring specific ones. This allows flexibility to adapt the plugin to different project setups and avoid unnecessary false positives.
-
-### Example: Custom Identifiers
+### Example: Ignoring Specific Keys
 
 ```json
 {
@@ -128,16 +132,16 @@ You can customize the behavior of the plugin by defining your own set of identif
     "sensitive-env/no-hardcoded-values": [
       "error",
       {
-        "identifiers": ["PASSWORD", "SECRET", "DOMAIN"]
+        "ignore": ["PASSWORD", "SECRET"]
       }
     ]
   }
 }
 ```
 
-In this case, only values containing `PASSWORD`, `SECRET`, or `DOMAIN` will be considered sensitive.
+In this case, values for `PASSWORD` and `SECRET` will be ignored, but other keys will still be checked.
 
-### Example: Ignoring Identifiers
+### Example: Ignoring Specific Values
 
 ```json
 {
@@ -145,14 +149,14 @@ In this case, only values containing `PASSWORD`, `SECRET`, or `DOMAIN` will be c
     "sensitive-env/no-hardcoded-values": [
       "error",
       {
-        "ignore": ["UUID"]
+        "noSensitiveValues": ["myPublicValue", "someOtherSafeValue"]
       }
     ]
   }
 }
 ```
 
-In this case, the rule will ignore any sensitive value related to `UUID`, and only other identifiers will be checked.
+Here, `myPublicValue` and `someOtherSafeValue` will not be flagged, even if they appear as hardcoded values.
 
 ## Testing
 
