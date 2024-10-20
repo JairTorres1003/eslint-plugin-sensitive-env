@@ -1,4 +1,4 @@
 .eslintrc.cjs
-
+jest.config.ts
 /node_modules
 /build
