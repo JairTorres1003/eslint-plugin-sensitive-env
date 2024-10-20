@@ -14,7 +14,7 @@ export interface NoHardcodedValuesRuleOptions {
   envFile?: string
   /**
    * The identifiers to check for hardcoded values in the environment file.
-   * @default ['API_KEY', 'URL', 'TOKEN', 'PASSWORD', 'SECRET', 'UUID', 'KEY', 'DOMAIN']
+   * @default ['API', 'URL', 'TOKEN', 'PASSWORD', 'SECRET', 'UUID', 'KEY', 'DOMAIN']
    */
   identifiers?: Array<Uppercase<string>>
   /**

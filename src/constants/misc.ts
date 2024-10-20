@@ -1,5 +1,5 @@
 export const IDENTIFIERS: Array<Uppercase<string>> = [
-  'API_KEY',
+  'API',
   'URL',
   'TOKEN',
   'PASSWORD',
