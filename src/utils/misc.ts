@@ -112,7 +112,12 @@ export const filterValues = (
       if (ignore.some((identifier) => keyUpper.includes(identifier.toUpperCase()))) return
     }
 
-    sensitiveValues.push(value)
+    try {
+      const hostname = new URL(value)?.hostname
+      sensitiveValues.push(hostname ?? value)
+    } catch (error) {
+      sensitiveValues.push(value)
+    }
   })
 
   return sensitiveValues
