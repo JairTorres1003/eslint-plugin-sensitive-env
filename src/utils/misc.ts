@@ -71,7 +71,18 @@ export const filterValuesByIdentifiers = (
   config: Record<string, string>,
   identifiers: Array<Uppercase<string>>
 ): string[] => {
-  return Object.entries(config)
-    .filter(([key]) => identifiers.includes(key.toUpperCase() as Uppercase<string>))
-    .map(([, value]) => value)
+  const sensitiveValues = Object.entries(config).filter(([key]) => {
+    const keyUpper = key.toUpperCase() as Uppercase<string>
+
+    return identifiers.some((identifier) => keyUpper.includes(identifier))
+  })
+
+  return sensitiveValues.map(([, value]) => {
+    try {
+      const isUrl = new URL(value)
+      return isUrl.hostname
+    } catch (error) {
+      return value
+    }
+  })
 }
