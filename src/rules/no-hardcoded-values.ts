@@ -97,9 +97,17 @@ const noHardcodedValuesRule: NoHardcodedValuesRule = {
 
     return {
       Literal(node) {
-        if (typeof node.value !== 'string') return
+        if (typeof node.value !== 'string' && typeof node.value !== 'number') return
+        const currentValue = node.value?.toString()
 
-        const isSensitiveValue = sensitiveValues.some((value) => node.value.includes(value))
+        const isSensitiveValue = sensitiveValues.some((value) => currentValue.includes(value))
+        if (isSensitiveValue) {
+          report({ node, messageId: 'noHardcodedValues' })
+        }
+      },
+      TemplateLiteral(node) {
+        const currentValue = node.quasis.map((quasi) => quasi.value.raw).join('')
+        const isSensitiveValue = sensitiveValues.some((value) => currentValue.includes(value))
         if (isSensitiveValue) {
           report({ node, messageId: 'noHardcodedValues' })
         }

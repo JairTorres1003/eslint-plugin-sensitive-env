@@ -58,7 +58,7 @@ ruleTester.run<NoHardcodedValuesRuleMessageIds, NoHardcodedValuesRuleOptions[]>(
       },
       {
         name: 'If the value is a sensitive string, it should be disallowed',
-        code: "const sensitive = 'example_sensitive_2'",
+        code: 'const sensitiveValue = `${1}_example_sensitive_2`',
         errors: [{ messageId: 'noHardcodedValues' }],
       },
       {

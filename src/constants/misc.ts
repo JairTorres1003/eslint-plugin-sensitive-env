@@ -7,7 +7,8 @@ export const NO_SENSITIVE_VALUES: string[] = [
   'nan',
   'infinity',
   '-infinity',
-  '11234567890',
+  '1234567890',
+  '9876543210',
 ]
 
 export const ENV_FILES: string[] = [
