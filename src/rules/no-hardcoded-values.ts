@@ -1,6 +1,6 @@
 import * as fs from 'fs'
 
-import { type TSESLint } from '@typescript-eslint/utils'
+import type { TSESLint } from '@typescript-eslint/utils'
 import * as dotenv from 'dotenv'
 
 import { filterValues, getEnvironmentFile } from '@/utils/misc'
